@@ -1,5 +1,7 @@
 package com.pool2;
 
+import com.my.Ball;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,6 +23,13 @@ import java.util.*;
  */
 public class Main {
 
+//    Integer a = new Integer("1");
+//    Integer[] b = new Integer[10];
+    private static List<Book>[]            books;
+    private static Map<String, List<Book>> cashe;
+    private static Connection[]             conn;
+    private static ConnectionPool       connPool;
+
     public static void main(String[] args) {
 //        try{
 //            Class.forName("com.mysql.jdbc.Driver");
@@ -41,73 +50,82 @@ public class Main {
 
 
 
-        List<Book> books1 = new ArrayList<Book>();
-        List<Book> books2 = new ArrayList<Book>();
-        List<Book> books3 = new ArrayList<Book>();
-        List<Book> books4 = new ArrayList<Book>();
-        List<Book> books5 = new ArrayList<Book>();
-        Map<String, List<Book>> books = new HashMap<>();
-//        Map<String, List<Book>> books = new TreeMap<String, List<Book>>();
-        ConnectionPool connPool = ConnectionPool.getInstance("jdbc:mysql://localhost/bookstore", "com.mysql.jdbc.Driver", 10, "root", "1111");
+        books    = new ArrayList[10];
+        cashe    = new HashMap<>();
+        conn     = new Connection[10];
+        connPool = ConnectionPool.getInstance("jdbc:mysql://localhost/javalessons_jdbc", "com.mysql.jdbc.Driver", 10, "root", "1978");
 
         try {
             System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
-            Connection conn1 = connPool.retrieve();
-            Connection conn2 = connPool.retrieve();
-            Connection conn3 = connPool.retrieve();
-            Connection conn4 = connPool.retrieve();
-            Connection conn5 = connPool.retrieve();
-            System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
+//            conn[0] = connPool.retrieve();
+//            conn[1] = connPool.retrieve();
+//            conn[2] = connPool.retrieve();
+//            conn[3] = connPool.retrieve();
+//            conn[4] = connPool.retrieve();
+//            System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
 
-            Statement st1 = conn1.createStatement();
-            ResultSet rs1 = st1.executeQuery("SELECT * FROM books");
-            while (rs1.next())
-                books1.add(new Book(rs1.getInt("id"), rs1.getString("title"), rs1.getString("comment"), rs1.getDouble("price"), rs1.getString("author")));
-            st1.close();
-            connPool.putback(conn1);
 
-            Statement st2 = conn2.createStatement();
-            ResultSet rs2 = st2.executeQuery("SELECT * FROM books");
-            while (rs2.next())
-                books2.add( new Book(rs2.getInt("id"), rs2.getString("title"), rs2.getString("comment"), rs2.getDouble("price"), rs2.getString("author")) );
-            st2.close();
-            connPool.putback(conn2);
+//            StatementCashe st1 = new StatementCashe(conn[0]);
+//            StatementCashe st2 = new StatementCashe(conn[1]);
+//            StatementCashe st3 = new StatementCashe(conn[2]);
+//            StatementCashe st4 = new StatementCashe(conn[3]);
+//            StatementCashe st5 = new StatementCashe(conn[4]);
+//
+//            books[0] = st1.executeQuery("SELECT * FROM books");
+//            books[1] = st2.executeQuery("SELECT * FROM books");
+//            books[2] = st3.executeQuery("SELECT * FROM books");
+//            books[3] = st4.executeQuery("SELECT * FROM books");
+//            books[4] = st5.executeQuery("SELECT * FROM books");
+//
+//            st1.close();
+//            st2.close();
+//            st3.close();
+//            st4.close();
+//            st5.close();
+//            connPool.putback(conn[0]);
+//            connPool.putback(conn[1]);
+//            connPool.putback(conn[2]);
+//            connPool.putback(conn[3]);
+//            connPool.putback(conn[4]);
 
-            Statement st3 = conn3.createStatement();
-            ResultSet rs3 = st3.executeQuery("SELECT * FROM books");
-            while (rs3.next())
-                books3.add( new Book(rs3.getInt("id"), rs3.getString("title"), rs3.getString("comment"), rs3.getDouble("price"), rs3.getString("author")) );
-            st3.close();
-            connPool.putback(conn3);
 
-            Statement st4 = conn4.createStatement();
-            ResultSet rs4 = st4.executeQuery("SELECT * FROM books");
-            while (rs4.next())
-                books4.add( new Book(rs4.getInt("id"), rs4.getString("title"), rs4.getString("comment"), rs4.getDouble("price"), rs4.getString("author")) );
-            st4.close();
-            connPool.putback(conn4);
 
-            Statement st5 = conn5.createStatement();
-            ResultSet rs5 = st5.executeQuery("SELECT * FROM books");
-            while (rs5.next())
-                books5.add( new Book(rs5.getInt("id"), rs5.getString("title"), rs5.getString("comment"), rs5.getDouble("price"), rs5.getString("author")) );
-            st5.close();
-            connPool.putback(conn5);
+            Thread[] thread = new Thread[10];
+            for (int i = 0; i < 5; i++){
+                conn[i] = connPool.retrieve();
+                thread[i] = new Thread(new MyRunnable(conn[i]));
+            }
+
+            for (int i = 0; i < 5; i++)
+                thread[i].start();
+
+
+
 
             System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
         } catch (SQLException sqle){ System.err.println("Err: SQLException"); }
 
 
-        books.put("id", getSort(books1, BookSort.ID));
-        books.put("title", getSort(books2, BookSort.TITLE));
-        books.put("comment", getSort(books3, BookSort.COMMENT));
-        books.put("price", getSort(books4, BookSort.PRICE));
-        books.put("author", getSort(books5, BookSort.AUTHOR));
-
-        for (Map.Entry<String, List<Book>> item : books.entrySet())
-            bookPrint(item.getValue());
+//        cashe.put("id", getSort(books[0], BookSort.ID));
+//        cashe.put("title", getSort(books[1], BookSort.TITLE));
+//        cashe.put("comment", getSort(books[2], BookSort.COMMENT));
+//        cashe.put("price", getSort(books[3], BookSort.PRICE));
+//        cashe.put("author", getSort(books[4], BookSort.AUTHOR));
+//
+////        for (Map.Entry<String, List<Book>> item : cashe.entrySet())
+////            bookPrint(item.getValue());
+//
+//
+//        for (Book b : cashe.get("id")) System.out.println( b.toString() );
+//        System.out.println();
+//        for (Book b : cashe.get("title")) System.out.println( b.toString() );
+//        System.out.println();
+//        for (Book b : cashe.get("comment")) System.out.println( b.toString() );
+//        System.out.println();
+//        for (Book b : cashe.get("price")) System.out.println( b.toString() );
+//        System.out.println();
+//        for (Book b : cashe.get("author")) System.out.println( b.toString() );
     }
-
 
     public static void bookPrint(List<Book> books){
         for(Book book : books)
@@ -160,54 +178,31 @@ public class Main {
         return books;
     }
 
-//    public static void bookPrint(List<Book> books, BookSort sort){
-//        Collections.sort(books, new Comparator<Book>() {
-//            @Override
-//            public int compare(Book book1, Book book2) {
-//                if (BookSort.TITLE == sort.TITLE) {
-//                    if (book1.getTitle().toString().length() == book2.getTitle().toString().length())
-//                        return 0;
-//                    else if (book1.getTitle().toString().length() > book2.getTitle().toString().length())
-//                        return 1;
-//                    else
-//                        return -1;
-//                } else if(BookSort.COMMENT == sort.COMMENT) {
-//                    if(book1.getComment().toString().length() == book2.getComment().toString().length())
-//                        return 0;
-//                    else if(book1.getComment().toString().length() > book2.getComment().toString().length())
-//                        return 1;
-//                    else
-//                        return -1;
-//                } else if(BookSort.PRICE == sort.PRICE) {
-//                    if(book1.getPrice() == book2.getPrice())
-//                        return 0;
-//                    else if(book1.getPrice() > book2.getPrice())
-//                        return 1;
-//                    else
-//                        return -1;
-//                } else if(BookSort.AUTHOR == sort.AUTHOR) {
-//                    if(book1.getAuthor().toString().length() == book2.getAuthor().toString().length())
-//                        return 0;
-//                    else if(book1.getAuthor().toString().length() > book2.getAuthor().toString().length())
-//                        return 1;
-//                    else
-//                        return -1;
-//                } else {
-//                    if(book1.getId() == book2.getId())
-//                        return 0;
-//                    else if(book1.getId() > book2.getId())
-//                        return 1;
-//                    else
-//                        return -1;
-//                }
-//            }
-//        });
-//        for(Book book : books)
-//            System.out.println(book.toString());
-//    }
+    static class MyRunnable implements Runnable {
 
+        private Connection conn;
+
+        public MyRunnable(){}
+        public MyRunnable(Connection conn){
+            this.conn = conn;
+        }
+
+        @Override
+        public void run() {
+            try {
+                StatementCashe st = new StatementCashe(conn);
+
+                List<Book> books = st.executeQuery("SELECT * FROM books");
+                bookPrint(books);
+
+                st.close();
+                connPool.putback(conn);
+            } catch (SQLException sqle){ System.err.println("Err: SQLException"); }
+        }
+    }
 
 }
+
 
 enum BookSort {
     ID, TITLE, COMMENT, PRICE, AUTHOR;
