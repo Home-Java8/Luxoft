@@ -8,10 +8,13 @@ import java.util.Vector;
 /**
  * Created by Саша on 16.06.2015.
  * {@link http://habrahabr.ru/post/229199/}
+ * {@link http://itpool.ru/blog/jdbc-connection-pool-svoimi-rukami-chast-1.html}
+ * {@link http://itpool.ru/blog/jdbc-connection-pool-svoimi-rukami-chast-2.html}
  * ******************************
  * Простейший Connection pool без DataSource в Java
  * - В Java EE Connection Pool реализуется используя Data Source (реализации в Apache Tomcat).
  * - Что делать, если используем только Java SE и нужно организовать многопоточный доступ к базе данных по схеме Connection Pool, ведь сервера приложений в данном случае нет (следовательно, использовать Data Source не можем, а для создания соединений к бд нам придется скорее всего использовать java.sql.DriverManager) ?
+ *
  * ************************************************************
  * Хранение деревьев в базе данных. Часть первая, теоретическая
  * {@link http://habrahabr.ru/post/193166/}
@@ -23,24 +26,35 @@ public class ConnectionPool {
     private Vector<Connection> usedConns = new Vector<Connection>();
     // Кроме этого определяется переменная url, которая будет хранить строку подключения к бд:
     private String url;
+    private String user;
+    private String passwd;
+    private static ConnectionPool connectionPool = null;
 
     // В конструкторе используется функция getConnection, которая просто создает новое подключение:
-    public ConnectionPool(String url, String driver, int initConnCnt) {
+    public ConnectionPool(String url, String driver, int initConnCnt, String user, String passwd) {
         try {
             Class.forName(driver);
         } catch (Exception e) {
             e.printStackTrace();
         }
         this.url = url;
+        this.user = user;
+        this.passwd = passwd;
         for (int i = 0; i < initConnCnt; i++) {
             availableConns.addElement(getConnection());
         }
     }
 
+    public static ConnectionPool getInstance(String url, String driver, int initConnCnt, String user, String passwd){
+        if(connectionPool == null)
+            connectionPool = new ConnectionPool(url, driver, initConnCnt, user, passwd);
+        return connectionPool;
+    }
+
     private Connection getConnection() {
         Connection conn = null;
         try {
-            conn = DriverManager.getConnection(url);
+            conn = DriverManager.getConnection(url, user, passwd);
         } catch (Exception e) {
             e.printStackTrace();
         }
