@@ -4,10 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Саша on 16.06.2015.
@@ -18,6 +15,9 @@ import java.util.List;
  * {@link https://ru.wikibooks.org/wiki/Реализации_алгоритмов/Сортировка/Пузырьком}
  * {@link http://study-java.ru/uroki-java/urok-11-sortirovka-massiva/}
  * {@link https://docs.oracle.com/javase/tutorial/reflect/member/ctorInstance.html}
+ *
+ * {@link http://stackoverflow.com/questions/1509391/how-to-get-the-one-entry-from-hashmap-without-iterating}
+ * {@link http://stackoverflow.com/questions/1066589/iterate-through-a-hashmap}
  */
 public class Main {
 
@@ -40,14 +40,23 @@ public class Main {
 //        } catch (SQLException sqle){ System.err.println("Err: SQLException"); }
 
 
+
         List<Book> books1 = new ArrayList<Book>();
         List<Book> books2 = new ArrayList<Book>();
+        List<Book> books3 = new ArrayList<Book>();
+        List<Book> books4 = new ArrayList<Book>();
+        List<Book> books5 = new ArrayList<Book>();
+        Map<String, List<Book>> books = new HashMap<>();
+//        Map<String, List<Book>> books = new TreeMap<String, List<Book>>();
         ConnectionPool connPool = ConnectionPool.getInstance("jdbc:mysql://localhost/bookstore", "com.mysql.jdbc.Driver", 10, "root", "1111");
+
         try {
             System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
             Connection conn1 = connPool.retrieve();
             Connection conn2 = connPool.retrieve();
             Connection conn3 = connPool.retrieve();
+            Connection conn4 = connPool.retrieve();
+            Connection conn5 = connPool.retrieve();
             System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
 
             Statement st1 = conn1.createStatement();
@@ -56,38 +65,57 @@ public class Main {
                 books1.add(new Book(rs1.getInt("id"), rs1.getString("title"), rs1.getString("comment"), rs1.getDouble("price"), rs1.getString("author")));
             st1.close();
             connPool.putback(conn1);
-            bookPrint(books1, BookSort.AUTHOR);
 
-            System.out.println();
             Statement st2 = conn2.createStatement();
             ResultSet rs2 = st2.executeQuery("SELECT * FROM books");
             while (rs2.next())
                 books2.add( new Book(rs2.getInt("id"), rs2.getString("title"), rs2.getString("comment"), rs2.getDouble("price"), rs2.getString("author")) );
             st2.close();
             connPool.putback(conn2);
-            bookPrint(books2);
+
+            Statement st3 = conn3.createStatement();
+            ResultSet rs3 = st3.executeQuery("SELECT * FROM books");
+            while (rs3.next())
+                books3.add( new Book(rs3.getInt("id"), rs3.getString("title"), rs3.getString("comment"), rs3.getDouble("price"), rs3.getString("author")) );
+            st3.close();
+            connPool.putback(conn3);
+
+            Statement st4 = conn4.createStatement();
+            ResultSet rs4 = st4.executeQuery("SELECT * FROM books");
+            while (rs4.next())
+                books4.add( new Book(rs4.getInt("id"), rs4.getString("title"), rs4.getString("comment"), rs4.getDouble("price"), rs4.getString("author")) );
+            st4.close();
+            connPool.putback(conn4);
+
+            Statement st5 = conn5.createStatement();
+            ResultSet rs5 = st5.executeQuery("SELECT * FROM books");
+            while (rs5.next())
+                books5.add( new Book(rs5.getInt("id"), rs5.getString("title"), rs5.getString("comment"), rs5.getDouble("price"), rs5.getString("author")) );
+            st5.close();
+            connPool.putback(conn5);
 
             System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
         } catch (SQLException sqle){ System.err.println("Err: SQLException"); }
 
-//        Collections.sort(books1, new Comparator<Book>() {
-//            @Override
-//            public int compare(Book book1, Book book2) {
-//                if(book1.getAuthor().toString().length() == book2.getAuthor().toString().length())
-//                    return 0;
-//                else if(book1.getAuthor().toString().length() > book2.getAuthor().toString().length())
-//                    return 1;
-//                else
-//                    return -1;
-//            }
-//        });
-//
-//        for(Book book : books1)
-//            System.out.println(book.toString());
+
+        books.put("id", getSort(books1, BookSort.ID));
+        books.put("title", getSort(books2, BookSort.TITLE));
+        books.put("comment", getSort(books3, BookSort.COMMENT));
+        books.put("price", getSort(books4, BookSort.PRICE));
+        books.put("author", getSort(books5, BookSort.AUTHOR));
+
+        for (Map.Entry<String, List<Book>> item : books.entrySet())
+            bookPrint(item.getValue());
     }
 
 
-    public static void bookPrint(List<Book> books, BookSort sort){
+    public static void bookPrint(List<Book> books){
+        for(Book book : books)
+            System.out.println(book.toString());
+        System.out.println();
+    }
+
+    public static List<Book> getSort(List<Book> books, BookSort sort){
         Collections.sort(books, new Comparator<Book>() {
             @Override
             public int compare(Book book1, Book book2) {
@@ -129,26 +157,55 @@ public class Main {
                 }
             }
         });
-        for(Book book : books)
-            System.out.println(book.toString());
+        return books;
     }
 
-    public static void bookPrint(List<Book> books){
-        Collections.sort(books, new Comparator<Book>() {
-            @Override
-            public int compare(Book book1, Book book2) {
-                if(book1.getId() == book2.getId())
-                    return 0;
-                else if(book1.getId() > book2.getId())
-                    return 1;
-                else
-                    return -1;
-            }
-        });
+//    public static void bookPrint(List<Book> books, BookSort sort){
+//        Collections.sort(books, new Comparator<Book>() {
+//            @Override
+//            public int compare(Book book1, Book book2) {
+//                if (BookSort.TITLE == sort.TITLE) {
+//                    if (book1.getTitle().toString().length() == book2.getTitle().toString().length())
+//                        return 0;
+//                    else if (book1.getTitle().toString().length() > book2.getTitle().toString().length())
+//                        return 1;
+//                    else
+//                        return -1;
+//                } else if(BookSort.COMMENT == sort.COMMENT) {
+//                    if(book1.getComment().toString().length() == book2.getComment().toString().length())
+//                        return 0;
+//                    else if(book1.getComment().toString().length() > book2.getComment().toString().length())
+//                        return 1;
+//                    else
+//                        return -1;
+//                } else if(BookSort.PRICE == sort.PRICE) {
+//                    if(book1.getPrice() == book2.getPrice())
+//                        return 0;
+//                    else if(book1.getPrice() > book2.getPrice())
+//                        return 1;
+//                    else
+//                        return -1;
+//                } else if(BookSort.AUTHOR == sort.AUTHOR) {
+//                    if(book1.getAuthor().toString().length() == book2.getAuthor().toString().length())
+//                        return 0;
+//                    else if(book1.getAuthor().toString().length() > book2.getAuthor().toString().length())
+//                        return 1;
+//                    else
+//                        return -1;
+//                } else {
+//                    if(book1.getId() == book2.getId())
+//                        return 0;
+//                    else if(book1.getId() > book2.getId())
+//                        return 1;
+//                    else
+//                        return -1;
+//                }
+//            }
+//        });
+//        for(Book book : books)
+//            System.out.println(book.toString());
+//    }
 
-        for(Book book : books)
-            System.out.println(book.toString());
-    }
 
 }
 
