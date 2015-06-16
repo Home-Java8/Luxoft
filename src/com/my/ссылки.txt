@@ -1,0 +1,8 @@
+
+(Java на каждый день и не только. Рекомендации по использованию) http://habrahabr.ru/post/167291/
+(Особенности Java 8 – максимальное руководство (часть 1)) http://info.javarush.ru/translation/2014/10/09/Особенности-Java-8-максимальное-руководство-часть-1-.html
+(Различия в использовании интерфейсов и абстрактных классов) http://www.quizful.net/post/razlichie_v_primenenii_interfeysov_i_abstraktnih_klassov
+(Как правильно делать сортировку в Java) http://info.javarush.ru/translation/2014/06/14/Как-правильно-делать-сортировку-в-Java.html
+                                         http://www.javaportal.ru/java/articles/sort.html
+                                         http://www.mkyong.com/java/java-object-sorting-example-comparable-and-comparator/
+(Сортировка и упорядочивание. Интерфейсы Comparable и Comparator) http://echuprina.blogspot.com/2012/02/comparable-comparator.html
