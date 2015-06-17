@@ -3,9 +3,9 @@ package com.pool3.service;
 /**
  * Created by alexandr on 17.06.15.
  */
-public class FactoryConnection {
+public class FactoryDriverManager {
 
-    public static MyDriverManager init(TypeConnection type, String url, String name, String passwd){
+    public static MyDriverManager choose(TypeConnection type, String url, String name, String passwd){
         MyDriverManager conn = null;
 
         switch (type){
