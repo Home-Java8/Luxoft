@@ -1,11 +1,7 @@
 package com.pool2;
 
-import com.my.Ball;
-
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 
 /**
@@ -20,6 +16,20 @@ import java.util.*;
  *
  * {@link http://stackoverflow.com/questions/1509391/how-to-get-the-one-entry-from-hashmap-without-iterating}
  * {@link http://stackoverflow.com/questions/1066589/iterate-through-a-hashmap}
+ *
+ * {@link http://developer.alexanderklimov.ru/android/java/hashmap.php}
+ * {@link http://habrahabr.ru/post/128017/}
+ * {@link http://info.javarush.ru/translation/2013/10/22/Как-работает-HashMap-в-Java.html}
+ *
+ * *******************************************************************************************
+ * {@link http://habrahabr.ru/post/139736/}
+ * {@link http://habrahabr.ru/company/golovachcourses/blog/217595/}
+ * {@link http://devcolibri.com/1253}
+ * {@link http://www.javenue.info/post/79}
+ * {@link http://easy-code.ru/lesson/java-annotations}
+ * {@link http://study-and-dev.com/blog/java_annotations_example_1/}
+ * {@link http://info.javarush.ru/translation/2014/12/15/Создание-своих-аннотации-в-Java.html}
+ * {@link http://www.programru.com/blog/MEzMyADMwIT1.html}
  */
 public class Main {
 
@@ -57,74 +67,18 @@ public class Main {
 
         try {
             System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
-//            conn[0] = connPool.retrieve();
-//            conn[1] = connPool.retrieve();
-//            conn[2] = connPool.retrieve();
-//            conn[3] = connPool.retrieve();
-//            conn[4] = connPool.retrieve();
-//            System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
-
-
-//            StatementCashe st1 = new StatementCashe(conn[0]);
-//            StatementCashe st2 = new StatementCashe(conn[1]);
-//            StatementCashe st3 = new StatementCashe(conn[2]);
-//            StatementCashe st4 = new StatementCashe(conn[3]);
-//            StatementCashe st5 = new StatementCashe(conn[4]);
-//
-//            books[0] = st1.executeQuery("SELECT * FROM books");
-//            books[1] = st2.executeQuery("SELECT * FROM books");
-//            books[2] = st3.executeQuery("SELECT * FROM books");
-//            books[3] = st4.executeQuery("SELECT * FROM books");
-//            books[4] = st5.executeQuery("SELECT * FROM books");
-//
-//            st1.close();
-//            st2.close();
-//            st3.close();
-//            st4.close();
-//            st5.close();
-//            connPool.putback(conn[0]);
-//            connPool.putback(conn[1]);
-//            connPool.putback(conn[2]);
-//            connPool.putback(conn[3]);
-//            connPool.putback(conn[4]);
-
-
 
             Thread[] thread = new Thread[10];
             for (int i = 0; i < 5; i++){
                 conn[i] = connPool.retrieve();
-                thread[i] = new Thread(new MyRunnable(conn[i]));
+                thread[i] = new Thread(new MyRunnable(conn[i], connPool));
             }
 
             for (int i = 0; i < 5; i++)
                 thread[i].start();
 
-
-
-
             System.out.println( "Available Connection = " + connPool.getAvailableConnsCnt() );
         } catch (SQLException sqle){ System.err.println("Err: SQLException"); }
-
-
-//        cashe.put("id", getSort(books[0], BookSort.ID));
-//        cashe.put("title", getSort(books[1], BookSort.TITLE));
-//        cashe.put("comment", getSort(books[2], BookSort.COMMENT));
-//        cashe.put("price", getSort(books[3], BookSort.PRICE));
-//        cashe.put("author", getSort(books[4], BookSort.AUTHOR));
-//
-////        for (Map.Entry<String, List<Book>> item : cashe.entrySet())
-////            bookPrint(item.getValue());
-//
-//
-//        for (Book b : cashe.get("id")) System.out.println( b.toString() );
-//        System.out.println();
-//        for (Book b : cashe.get("title")) System.out.println( b.toString() );
-//        System.out.println();
-//        for (Book b : cashe.get("comment")) System.out.println( b.toString() );
-//        System.out.println();
-//        for (Book b : cashe.get("price")) System.out.println( b.toString() );
-//        System.out.println();
-//        for (Book b : cashe.get("author")) System.out.println( b.toString() );
     }
 
     public static void bookPrint(List<Book> books){
@@ -181,10 +135,12 @@ public class Main {
     static class MyRunnable implements Runnable {
 
         private Connection conn;
+        private ConnectionPool connPool;
 
         public MyRunnable(){}
-        public MyRunnable(Connection conn){
+        public MyRunnable(Connection conn, ConnectionPool connPool){
             this.conn = conn;
+            this.connPool = connPool;
         }
 
         @Override
