@@ -12,8 +12,11 @@ public class CopyOnWriteArrayList {
 
     private volatile Object[] array = new Object[0];
 
-    public void add(int index, T item) {
-        if (index < 0) {             throw new IllegalArgumentException();         }         boolean needsModification = index > array.length - 1;
+    public <T>void add(int index, T item) {
+        if (index < 0) {
+            throw new IllegalArgumentException();
+        }
+        boolean needsModification = index > array.length - 1;
         if (!needsModification) {
             if (item == null) {
                 needsModification = array[index] != null;
@@ -29,7 +32,7 @@ public class CopyOnWriteArrayList {
         }
     }
 
-    public void remove(int index) {
+    public <T>void remove(int index) {
         if (index < 0 || index >= array.length) {
             throw new IllegalArgumentException();
         }
@@ -45,7 +48,7 @@ public class CopyOnWriteArrayList {
         array = newArray;
     }
 
-    public T get(int index) {
+    public <T> T get(int index) {
         return (T)array[index];
     }
 
